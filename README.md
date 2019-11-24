@@ -1,41 +1,32 @@
 # Japanese Word2Vec
 
+This repo was forked from [here](https://github.com/philipperemy/japanese-words-to-vectors)
+
 ## About
 
 Word2vec (word to vectors) approach for Japanese language using Gensim (Deep Learning skip-gram and CBOW models). The model is trained on the *Japanese version of Wikipedia* available at [jawiki-latest-pages-articles.xml.bz2](https://dumps.wikimedia.org/jawiki/latest/).
 
 <i>Definition: Word2vec is a group of related models that are used to produce word embeddings. These models are shallow, two-layer neural networks that are trained to reconstruct linguistic contexts of words. Word2vec takes as its input a large corpus of text and produces a high-dimensional space (typically of several hundred dimensions), with each unique word in the corpus being assigned a corresponding vector in the space. Word vectors are positioned in the vector space such that words that share common contexts in the corpus are located in close proximity to one another in the space.</i>
 
-Further reading about word2vec: http://nlp.stanford.edu/projects/glove/
+word2vec training visualization: http://captureai.southeastasia.cloudapp.azure.com/  
 
 ## Usage
 
-Generating the vectors from a wikipedia dump takes about 2~3 hours on a Core i5, with the default parameters.
-```bash
-git clone https://github.com/philipperemy/japanese-word-to-vectors.git
-cd japanese-word-to-vectors
-pip3 install -r requirements.txt # you can create a virtual env before.
-wget https://dumps.wikimedia.org/jawiki/latest/jawiki-latest-pages-articles.xml.bz2 # 2.4GB. It can take some time depending of your internet speed!
+Generating the vectors from a wikipedia dump takes about 2-3 hours on a Core i5, with the default parameters.
 
-# will use TinySegmenter3 for the tokenization (easy to install but less accurate)
+### Install
+```
+python3 -m virtualenv venv
+source venv/bin/activate
+pip3 install -r requirements.txt
+```
+
+### Run
+```
 python3 generate_vectors.py 
-
-# recommended. will use the MeCab tokenizer. Installation is available at http://www.robfahey.co.uk/blog/japanese-text-analysis-in-python/
-# next section of the README called "Tokenize the text" provides the details to install it as well.
-python3 generate_vectors.py --mecab
 ```
 
 If `generate_vectors.py` does not detect the file `jawiki-latest-pages-articles.xml.bz2`, it will download it automatically before running the long generation of the vectors.
-
-### Convert Wiki dump to text
-The first step is to extract the text and the sentences of the dump. It is done in this function:
-
-```python
-INPUT_FILENAME = 'jawiki-latest-pages-articles.xml.bz2' # This is the only input filename
-JA_WIKI_TEXT_FILENAME = 'jawiki-latest-text.txt' # first output file of the function
-JA_WIKI_SENTENCES_FILENAME = 'jawiki-latest-text-sentences.txt' # second output file of the function
-process_wiki_to_text(INPUT_FILENAME, JA_WIKI_TEXT_FILENAME, JA_WIKI_SENTENCES_FILENAME)
-```
 
 The output consists of two files:
 
@@ -47,44 +38,10 @@ where each line corresponds to an article.
 
 ### Tokenize the text
 
-Tokenizing means separating the full text into words by using spaces as delimiters. Two approaches are available here:
+Tokenizing means separating the full text into words by using spaces as delimiters.
 
-#### TinySegmenter3 (easy but less accurate in the tokenization phase)
+[How to install MeCab](https://github.com/HemingwayLee/mecab-showcase)
 
-For this, we use a library called [TinySegmenter3](https://pypi.python.org/pypi/tinysegmenter3/0.1.0) which is able to tokenize japanese corpus with more than 95 percent accuracy (source: http://lilyx.net/tinysegmenter-in-python/).
-
-The output is `JA_WIKI_TEXT_TOKENS_FILENAME`. It looks like this:
-`trebuchet   ms   フォント   アンパサンド   と は   を 意味 する`
-
-#### MeCab (advanced but very accurate)
-
-I strongly advise you to read this tutorial first: [How to install MeCab](http://www.robfahey.co.uk/blog/japanese-text-analysis-in-python/).
-
-The installation depends on your OS:
-
-##### MacOS
-
-```bash
-brew install mecab
-brew install mecab-ipadic
-brew install git curl xz
-git clone --depth 1 https://github.com/neologd/mecab-ipadic-neologd.git
-cd mecab-ipadic-neologd
-./bin/install-mecab-ipadic-neologd -n
-pip3 install mecab-python3
-```
-
-##### Ubuntu
-
-```bash
-sudo apt-get install mecab mecab-ipadic libmecab-dev
-sudo apt-get install mecab-ipadic-utf8
-sudo apt-get install git curl
-git clone --depth 1 https://github.com/neologd/mecab-ipadic-neologd.git
-cd mecab-ipadic-neologd
-sudo ./bin/install-mecab-ipadic-neologd -n
-pip3 install mecab-python3
-```
 
 ### Infer the vectors
 Finally, the [Gensim](https://radimrehurek.com/gensim/) library is used to perform the word2vec algorithm with the parameters:
@@ -115,9 +72,5 @@ Finally, let's inspect `ja-gensim.50d.data.txt`
 ```
 Here we can see the vectors for `の`, `に` and `は`. If we go deeper, we can see longer words such as `文献`. The size of the vocabulary is the number of lines of this file (one line equals one word and its vector representation).
 
-`wc -l ja-gensim.50d.data.txt` yields `1200627` words.
+`wc -l ja-gensim.50d.data.txt` yields 1200627 words.
 
-
-## References
-- Tomas Mikolov, Kai Chen, Greg Corrado, and Jeffrey Dean. Efficient Estimation of Word Representations in Vector Space. In Proceedings of Workshop at ICLR, 2013.
--	Tomas Mikolov, Ilya Sutskever, Kai Chen, Greg Corrado, and Jeffrey Dean. Distributed Representations of Words and Phrases and their Compositionality. In Proceedings of NIPS, 2013.
